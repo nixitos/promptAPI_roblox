@@ -1,0 +1,73 @@
+URL: 111
+
+LOAD:
+loadstring(game:HttpGet("111"))()
+
+Registers: getgenv().PromptAPI
+
+FUNCTIONS:
+
+PromptAPI.triggerPrompt(prompt) -> bool
+  prompt: ProximityPrompt — target to trigger.
+  Calls fireproximityprompt. Bypasses HoldDuration and MaxActivationDistance.
+  Returns false if prompt invalid or fireproximityprompt unsupported.
+
+PromptAPI.triggerAll(root)
+  root: Instance — search root (usually workspace).
+  Finds all ProximityPrompt in root and triggers each with 0.05s delay.
+
+PromptAPI.findPrompts(root) -> array
+  Recursively finds ProximityPrompt instances inside root.
+
+PromptAPI.findPromptsByAction(root, actionText) -> array
+  Finds ProximityPrompt where ActionText matches (case-insensitive, partial).
+
+USAGE:
+api = getgenv().PromptAPI
+api.triggerPrompt(workspace.Door.ProximityPrompt)
+
+api.triggerAll(workspace)
+
+for _, p in ipairs(api.findPromptsByAction(workspace, "open")) do
+    api.triggerPrompt(p)
+end
+
+NOTES:
+- Client-only. Requires fireproximityprompt.
+- Bypasses HoldDuration, MaxActivationDistance, RequiresLineOfSight.
+
+MODULE SOURCE:
+getgenv().PromptAPI = getgenv().PromptAPI or {}
+local API = getgenv().PromptAPI
+API._version = "1.0"
+function API.triggerPrompt(prompt)
+  if not fireproximityprompt or not prompt then return false end
+  if not prompt:IsA("ProximityPrompt") then return false end
+  fireproximityprompt(prompt)
+  return true
+end
+function API.triggerAll(root)
+  for _, v in ipairs(root:GetDescendants()) do
+    if v:IsA("ProximityPrompt") then
+      API.triggerPrompt(v)
+      task.wait(0.05)
+    end
+  end
+end
+function API.findPrompts(root)
+  local o = {}
+  for _, v in ipairs(root:GetDescendants()) do
+    if v:IsA("ProximityPrompt") then table.insert(o, v) end
+  end
+  return o
+end
+function API.findPromptsByAction(root, actionText)
+  local o = {}
+  local target = string.lower(actionText)
+  for _, v in ipairs(root:GetDescendants()) do
+    if v:IsA("ProximityPrompt") and string.find(string.lower(v.ActionText), target, 1, true) then
+      table.insert(o, v)
+    end
+  end
+  return o
+end
