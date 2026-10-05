@@ -1,7 +1,7 @@
-URL: 111
+URL: https://raw.githubusercontent.com/nixitos/promptAPI_roblox/refs/heads/main/module.lol
 
 LOAD:
-loadstring(game:HttpGet("111"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/nixitos/promptAPI_roblox/refs/heads/main/module.lol"))()
 
 Registers: getgenv().PromptAPI
 
